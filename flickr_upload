@@ -17,6 +17,7 @@ my $man = 0;
 my $auth = 0;
 my $progress = 0;
 my $check = 0;
+my $reverse = 0;
 
 if( open CONFIG, "< $ENV{HOME}/.flickrrc" ) {
 	while( <CONFIG> ) {
@@ -52,6 +53,7 @@ GetOptions(
 	'progress' => \$progress,
 	'check' => \$check,
 	'option=s' => \%args,
+	'reverse' => \$reverse,
 ) or pod2usage(2);
 pod2usage(1) if $help;
 pod2usage(-exitstatus => 0, -verbose => 2) if $man;
@@ -123,7 +125,10 @@ $args{'async'} = 1;
 my %tickets;
 
 $| = 1;
-while( my $photo = shift @ARGV ) {
+
+my @argv = $reverse ? reverse @ARGV : @ARGV;
+
+while( my $photo = shift @argv ) {
 	my $rc;
 
 	if ($progress) {
@@ -318,6 +323,15 @@ to define a tag with spaces, the quotes have to be part of the tag itself.
 The following works in L<bash>:
 
   flickr_upload --tag='"tag one"' --tag='"tag two"' image.jpg
+
+=item --reverse
+
+Reverse the list of supplied images. Useful when uploading contents of 
+directory with sorted filenames. Following example will upload the last 
+glob expanded file as first and vice versa. The last file will appear 
+first in target photo stream.
+
+  flickr_upload --reverse *.jpg
 
 =item --option key=value
 
